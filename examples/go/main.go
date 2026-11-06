@@ -1,4 +1,4 @@
-// Go - REST API, standard library only
+// Go - REST API, standard library only. Reads input.json.
 package main
 
 import (
@@ -12,32 +12,40 @@ import (
 
 const actor = "data_foundry~woocommerce-scraper"
 
-var input = map[string]any{
-	"url": "https://example-store.com",
-	"resource": "products",
-	"limit": 100,
-}
-
 func main() {
 	token := os.Getenv("APIFY_TOKEN")
-	body, _ := json.Marshal(input)
-	url := fmt.Sprintf("https://api.apify.com/v2/acts/%s/runs?token=%s", actor, token)
-	resp, err := http.Post(url, "application/json", bytes.NewReader(body))
+
+	input, err := os.ReadFile("input.json")
+	if err != nil {
+		panic(err)
+	}
+
+	runURL := fmt.Sprintf("https://api.apify.com/v2/acts/%s/runs?token=%s", actor, token)
+	resp, err := http.Post(runURL, "application/json", bytes.NewReader(input))
 	if err != nil {
 		panic(err)
 	}
 	defer resp.Body.Close()
 
 	var started struct {
-		Data struct{ ID, DefaultDatasetID string } `json:"data"`
+		Data struct {
+			DefaultDatasetID string `json:"defaultDatasetId"`
+		} `json:"data"`
 	}
-	raw, _ := io.ReadAll(resp.Body)
-	json.Unmarshal(raw, &started)
+	if err := json.NewDecoder(resp.Body).Decode(&started); err != nil {
+		panic(err)
+	}
 
-	itemsURL := fmt.Sprintf("https://api.apify.com/v2/datasets/%s/items?token=%s&limit=5",
-		started.Data.DefaultDatasetID, token)
-	items, _ := http.Get(itemsURL)
+	itemsURL := fmt.Sprintf(
+		"https://api.apify.com/v2/datasets/%s/items?token=%s&limit=5",
+		started.Data.DefaultDatasetID, token,
+	)
+	items, err := http.Get(itemsURL)
+	if err != nil {
+		panic(err)
+	}
 	defer items.Body.Close()
+
 	out, _ := io.ReadAll(items.Body)
 	fmt.Println(string(out))
 }
