@@ -1,4 +1,5 @@
 [![Run on Apify](https://img.shields.io/badge/Run%20on-Apify-141414?logo=apify&logoColor=white&labelColor=141414)](https://apify.com/data_foundry/woocommerce-scraper)
+[![Release](https://img.shields.io/github/v/release/data-f0undry/WooCommerce-Website-Scraper?sort=semver)](https://github.com/data-f0undry/WooCommerce-Website-Scraper/releases)
 
 # WooCommerce Website Scraper
 
