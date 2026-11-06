@@ -2,228 +2,99 @@
 
 # WooCommerce Website Scraper
 
-**WooCommerce Website Scraper** is a high-performance, feature-rich Apify Actor designed to scrape product and category data from any WooCommerce store.
+Scrape any WooCommerce store's products, categories and payment methods through the store's own public Store API. No plugin, no key, no browser.
 
-This is an **enhanced version** of standard scrapers, offering significantly deeper data extraction while maintaining full compatibility with existing workflows.
+WooCommerce ships a public Store API that its own front-end calls. This Actor reads that endpoint, so you get prices, sale prices, stock state, images and taxonomy without a Consumer Key or Secret. Pagination, filters and sorting are handled for you.
 
-## What is WooCommerce?
-WooCommerce is the world's most popular open-source e-commerce plugin for WordPress. It powers over 3 million active stores. 
-While WooCommerce provides a REST API, accessing it often requires authentication keys (Consumer Key/Secret) which are not available for public data extraction.
-This scraper bypasses the need for API keys, allowing you to extract public product data (prices, descriptions, images, stock status) from any WooCommerce-powered site without credentials.
+## Features
 
-## Features 🚀
+- **Products**: prices, sale prices, SKU, stock availability, categories, tags, images, description
+- **Categories**: ids, slugs, counts, descriptions
+- **Payment methods**: the gateways the store advertises
+- **Filters**: category, min/max price, on sale
+- **Sort and order**: whatever the Store API supports
+- **Pagination** handled, with a hard `limit` you control
 
-*   **⚡ Enhanced Data Extraction**: detailed stock info, purchase limits, rich images, and deep taxonomy (slugs/IDs).
-*   **📂 Full Resource Support**: Scrape `products`, `categories`, and `payment_methods`.
-*   **🔍 Search & Filters**: Support for search queries, price ranges, and sale status.
-*   **⚙️ Data Parity**: Output format is fully compatible with standard schemas but enriched with extra fields.
-*   **⏩ Pagination**: Auto-traverses all pages to get complete datasets.
-*   **🛡️ WAF Bypass**: Uses specialized HTTP clients to bypass Cloudflare and other protections.
+## Usage
 
-## Usage 💡
-
-### Input Parameters
+### Input
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
-| `url` | Array | List of WooCommerce store URLs (e.g., `https://woocommerce.com/`). |
-| `resource` | String | What to scrape: `products` (default), `categories`, or `payment_methods`. |
-| `limit` | Integer | Max items to scrape (0 for unlimited). |
-| `filters` | Object | Optional filters (`search`, `min_price`, `on_sale`, etc.). |
-| `sort` | String | Sort by `date`, `price`, `popularity`. |
-| `order` | String | Sort order: `asc` or `desc`. |
+| `url` | string | Store base URL. The Actor appends the Store API path. |
+| `limit` | integer | Maximum items to return. Set it - a large catalogue is a large dataset. |
+| `resource` | string | `products`, `categories` or `payment_methods`. |
+| `filters` | object | `category`, `min_price`, `max_price`, `on_sale`. |
+| `sort` | string | Sort field, e.g. `price`, `date`, `popularity`. |
+| `order` | string | `asc` or `desc`. |
+
+```json
+{
+  "url": "https://example-store.com",
+  "resource": "products",
+  "limit": 500,
+  "filters": { "category": "hoodies", "on_sale": true },
+  "sort": "price",
+  "order": "asc"
+}
+```
 
 ### Output
 
-The scraper delivers results in a JSON format that extends the standard WooCommerce schema.
-
-### Output Fields
-*   `id`, `name`, `slug`, `permalink`, `sku`
-*   `price`, `regular_price`, `sale_price`
-*   `images` (List of URLs), `categories`
-*   `attributes`, `variations`
-*   `stock_availability`: Detailed text like "Only 2 left in stock!" or "Available on backorder".
-*   `add_to_cart`: Purchase constraints (minimum, maximum, step).
-*   `images_detailed`: Full list of image objects containing `src`, `thumbnail`, `alt` (SEO text), and `srcset`.
-*   `brands`: Brand information (if available).
-*   `categories_detailed` & `tags_detailed`: Full objects with IDs and slugs.
-
-## Tips
-
-- If the scraper returns 0 results, ensure the target site is actually built with WooCommerce.
-
-## Examples 📋
-
-Here are comprehensive, real-world examples using `https://woocommerce.com`.
-
-<details>
-<summary><strong>1. Scrape Products 📦</strong></summary>
-
-**Input:**
 ```json
 {
-    "url": [{ "url": "https://woocommerce.com" }],
-    "resource": "products",
-    "limit": 1
+  "id": 1234,
+  "name": "Organic Hoodie",
+  "price": "45.00",
+  "regular_price": "55.00",
+  "sale_price": "45.00",
+  "currency": "USD",
+  "is_in_stock": true,
+  "on_sale": true,
+  "categories_detailed": [{"id": 12, "name": "Hoodies", "slug": "hoodies"}]
 }
 ```
 
-**Output:**
-```json
-[
-    {
-        "id": 18734006072352,
-        "name": "Multiple Shipping Addresses",
-        "slug": "multiple-shipping-customer-addresses",
-        "permalink": "https://woocommerce.com/products/multiple-shipping-customer-addresses/",
-        "type": "simple",
-        "status": null,
-        "description": "<ul class=\"wccom-tick-list-primary\">\n<li><b>Ship to Multiple Addresses:</b> Ship individual items... (truncated for brevity) ...</li></ul>...",
-        "short_description": "<p><b>Allow customers to ship individual items to multiple addresses in a single order.</b></p>",
-        "sku": "",
-        "price": "3900",
-        "regular_price": "3900",
-        "sale_price": "3900",
-        "on_sale": null,
-        "prices": {
-            "price": "3900",
-            "regular_price": "3900",
-            "sale_price": "3900",
-            "price_range": null,
-            "currency_code": "USD",
-            "currency_symbol": "USD $",
-            "currency_minor_unit": 2,
-            "currency_decimal_separator": ".",
-            "currency_thousand_separator": ",",
-            "currency_prefix": "USD $",
-            "currency_suffix": ""
-        },
-        "price_html": "<span class=\"woocommerce-Price-amount amount\"><span class=\"woocommerce-Price-currencySymbol\">USD &#036;</span>39.00</span>",
-        "average_rating": "0",
-        "review_count": 0,
-        "images": [
-            "https://woocommerce.com/wp-content/uploads/2025/12/Multiple-Shipping-Addresses-Plugin.png",
-            "https://woocommerce.com/wp-content/uploads/2025/12/Use-a-Dropdown-to-Show-Saved-Addresses-On-Checkout-1.png",
-            "https://woocommerce.com/wp-content/uploads/2025/12/Ship-to-Multiple-Addresses-in-a-Single-Order-1.png",
-            "https://woocommerce.com/wp-content/uploads/2025/12/Save-Multiple-Shipping-Addresses-For-Future-Checkouts-1.png",
-            "https://woocommerce.com/wp-content/uploads/2025/12/Personalized-Shipping-Address-Form-1.png",
-            "https://woocommerce.com/wp-content/uploads/2025/12/Custom-Emails-for-Shipping-Notifications-1.png",
-            "https://woocommerce.com/wp-content/uploads/2025/12/Allow-Customers-To-Add-Shipping-Addresses-Directly-from-Checkout-1.png"
-        ],
-        "categories": [
-            "WooCommerce extensions",
-            "Shipping, delivery and fulfillment",
-            "Delivery options and enhancements",
-            "Store content and customizations",
-            "Cart and checkout features"
-        ],
-        "tags": [],
-        "attributes": [],
-        "variations": [],
-        "has_options": false,
-        "is_purchasable": true,
-        "in_stock": true,
-        "stock_quantity": null,
-        "stock_availability": {
-            "text": "",
-            "class": "in-stock"
-        },
-        "add_to_cart": {
-            "text": "Add to cart",
-            "description": "Add to cart: &ldquo;Multiple Shipping Addresses&rdquo;",
-            "url": "/wp-json/wc/store/v1/products?page=1&#038;per_page=20&#038;orderby=date&#038;order=desc&#038;add-to-cart=18734006072352",
-            "single_text": "Add to cart",
-            "minimum": 1,
-            "maximum": 9999,
-            "multiple_of": 1
-        },
-        "images_detailed": [
-            {
-                "id": 18734006124909,
-                "src": "https://woocommerce.com/wp-content/uploads/2025/12/Multiple-Shipping-Addresses-Plugin.png",
-                "thumbnail": "https://woocommerce.com/wp-content/uploads/2025/12/Multiple-Shipping-Addresses-Plugin.png?w=160",
-                "srcset": "https://woocommerce.com/wp-content/uploads/2025/12/Multiple-Shipping-Addresses-Plugin.png 160w, ...",
-                "sizes": "(max-width: 160px) 100vw, 160px",
-                "name": "Multiple Shipping Addresses Plugin",
-                "alt": "Multiple Shipping Addresses Plugin"
-            }
-        ],
-        "brands": [],
-        "categories_detailed": [
-            {
-                "id": 1021,
-                "name": "WooCommerce extensions",
-                "slug": "woocommerce-extensions",
-                "link": "https://woocommerce.com/product-category/woocommerce-extensions/"
-            },
-            {
-                "id": 28685,
-                "name": "Shipping, delivery and fulfillment",
-                "slug": "shipping-delivery-and-fulfillment",
-                "link": "https://woocommerce.com/product-category/woocommerce-extensions/shipping-delivery-and-fulfillment/"
-            }
-        ],
-        "tags_detailed": []
-    }
-]
-```
-</details>
+## Run it
 
-<details>
-<summary><strong>2. Scrape Categories 📂</strong></summary>
+**Apify Console** - open [data_foundry/woocommerce-scraper](https://apify.com/data_foundry/woocommerce-scraper) and click Start.
 
-**Input:**
-```json
-{
-    "url": [{ "url": "https://woocommerce.com" }],
-    "resource": "categories"
-}
+**API (Python)**
+
+```bash
+pip install apify-client
 ```
 
-**Output:**
-```json
-[
-    {
-        "id": 1028,
-        "name": "Accounting",
-        "slug": "accounting-extensions",
-        "description": "Accounting Extensions for WooCommerce",
-        "count": 23,
-        "parent": 1888,
-        "image": null,
-        "link": "https://woocommerce.com/product-category/accounting-extensions/"
-    }
-]
-```
-</details>
+```python
+from apify_client import ApifyClient
 
-<details>
-<summary><strong>3. Scrape Payment Methods 💳</strong></summary>
-
-**Input:**
-```json
-{
-    "url": [{ "url": "https://woocommerce.com" }],
-    "resource": "payment_methods"
-}
+client = ApifyClient("<YOUR_API_TOKEN>")
+run = client.actor("woocommerce-scraper").call(run_input={"url": "https://example-store.com", "limit": 100})
+for item in client.dataset(run["default_dataset_id"]).iterate_items():
+    print(item)
 ```
 
-**Output:**
-```json
-[
-    {
-        "url": "https://woocommerce.com",
-        "payment_methods": [
-            "woocommerce_payments",
-            "ppcp-gateway"
-        ]
-    }
-]
-```
-</details>
+Or run the included example: `python run_actor.py`.
 
-[![Run on Apify](https://img.shields.io/badge/Run%20on-Apify-141414?logo=apify&logoColor=white&labelColor=141414)](https://apify.com/data_foundry/woocommerce-scraper)
+## Pricing
+
+**$1.50 per 1,000 items** ($0.0015 each). One item is one product, category or payment method. Failed items are not billed.
+
+## Limitations
+
+- **Public Store API only.** Stores that disabled it, or block REST access, return an error rather than data.
+- **Hidden and draft products** are not public and will not appear.
+- **Variations are embedded** in the product record, not emitted as separate rows.
+- **One store per run** - the input is single-store by design.
+
+These are documented deliberately: an Actor that hides its limits generates refund requests.
+
+## Links
+
+- [Actor on Apify](https://apify.com/data_foundry/woocommerce-scraper)
+- [All Data Foundry Actors](https://apify.com/data_foundry)
+- [Issues](https://github.com/data-f0undry/WooCommerce-Website-Scraper/issues)
 
 ## License
 
-Apache-2.0
+Apache-2.0. See [LICENSE](LICENSE).
