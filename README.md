@@ -104,6 +104,25 @@ for item in client.dataset(run["default_dataset_id"]).iterate_items():
 
 Or run the included example: `python run_actor.py`.
 
+## Examples in every language
+
+Apify ships official clients for JavaScript, Python, Go, PHP, Java, .NET and Rust, plus a CLI, the REST API and an MCP server. Each example below runs this Actor and prints the first results.
+
+| Language | File | Client |
+| :--- | :--- | :--- |
+| Python | [`examples/python/run_actor.py`](examples/python/run_actor.py) | official `apify-client` |
+| JavaScript / TypeScript | [`examples/javascript/run_actor.mjs`](examples/javascript/run_actor.mjs) | official `apify-client` |
+| Go | [`examples/go/main.go`](examples/go/main.go) | REST, standard library |
+| PHP | [`examples/php/run.php`](examples/php/run.php) | REST, no dependencies |
+| Java 11+ | [`examples/java/RunActor.java`](examples/java/RunActor.java) | REST, `java.net.http` |
+| .NET | [`examples/dotnet/Program.cs`](examples/dotnet/Program.cs) | REST, `HttpClient` |
+| Rust | [`examples/rust/main.rs`](examples/rust/main.rs) | REST, `reqwest` |
+| CLI | [`examples/cli/run.sh`](examples/cli/run.sh) | `apify-cli` |
+| curl | [`examples/curl/run.sh`](examples/curl/run.sh) | REST |
+| MCP | [`examples/mcp/README.md`](examples/mcp/README.md) | hosted MCP server |
+
+Every example reads `APIFY_TOKEN` from the environment. Get one at https://console.apify.com/settings/integrations.
+
 ## Pricing
 
 **$1.50 per 1,000 items** ($0.0015 each). One item is one product, category or payment method. Failed items are not billed.
