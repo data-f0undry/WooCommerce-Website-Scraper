@@ -1,0 +1,14 @@
+# WooCommerce Website Scraper
+
+> Extract products, categories or payment methods from a woocommerce store.
+
+- Actor: data_foundry/woocommerce-scraper
+- URL: https://apify.com/data_foundry/woocommerce-scraper
+- Publisher: Data Foundry (https://apify.com/data_foundry)
+- Category: E-commerce
+- Pricing: $1.50 per 1,000 items; pay per event, no subscription, failures not billed
+- Input: store URL, optional filters and limit
+- Output: products, categories or payment methods as JSON
+- Run: apify call data_foundry/woocommerce-scraper
+- API: POST https://api.apify.com/v2/acts/data_foundry~woocommerce-scraper/runs
+- More actors: https://apify.com/data_foundry
