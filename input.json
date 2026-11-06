@@ -1,0 +1,5 @@
+{
+    "url": "https://example-store.com",
+    "resource": "products",
+    "limit": 100
+}
